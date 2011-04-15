@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.ParseException;
@@ -46,7 +48,7 @@ public class Vote extends ListActivity {
 	CustomAdapter adapter;
 	RowData rd;
 	Socket requestSocket;
- 	PrintWriter out;
+	PrintWriter out;
 	BufferedReader in;
 	String message;
 	ArrayList<String> voteList;
@@ -77,18 +79,9 @@ public class Vote extends ListActivity {
 			"Number of Votes: ", "Number of Votes: ", "Number of Votes: ",
 			"Number of Votes: ", "Number of Votes: ", "Number of Votes: " };
 
-	/*
-	private Integer[] imgid = { R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon,
-			R.drawable.voteicon, R.drawable.voteicon, R.drawable.voteicon };
-			*/
+		final CharSequence[] items = {"Red", "Green", "Blue"};
+		AlertDialog.Builder builder;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -102,17 +95,15 @@ public class Vote extends ListActivity {
 
 		portnum = 4242;
 
-	
-
 		setContentView(R.layout.vote);
-		//anim = AnimationUtils.loadAnimation(this, R.anim.shake); // Sets the
-																	// animation
-																	// to shake
+		// anim = AnimationUtils.loadAnimation(this, R.anim.shake); // Sets the
+		// animation
+		// to shake
 		mInflater = (LayoutInflater) getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 		data = new Vector<RowData>();
 		if (internetcheck) {
 			try {
-				
+
 				voteList.clear();
 				connect("GET", "");
 				connect("GETCOUNT", "");
@@ -141,28 +132,24 @@ public class Vote extends ListActivity {
 			}
 			adapter = new CustomAdapter(this, R.layout.list, R.id.title, data);
 			setListAdapter(adapter);
-			getListView().setOnItemLongClickListener( new AdapterView.OnItemLongClickListener
-					(){
-					                @Override
-					                public boolean onItemLongClick(AdapterView<?> av, View v, int
-					pos, long id) {
-					                        onLongListItemClick(v,pos,id);
-					                        return true;
-					        }
+			getListView().setOnItemLongClickListener(
+					new AdapterView.OnItemLongClickListener() {
+						@Override
+						public boolean onItemLongClick(AdapterView<?> av,View v, int pos, long id) {
+							onLongListItemClick(v, pos, id);
+							return true;
+						}
 
-					}); 
-			
+					});
 
 			getListView().setTextFilterEnabled(true);
-		
+
 		} else {
 			Toast.makeText(getApplicationContext(),
 					"No active internet connection.", Toast.LENGTH_SHORT)
 					.show();
 
 		}
-		
-
 
 		update = new Runnable() {
 			@Override
@@ -172,9 +159,9 @@ public class Vote extends ListActivity {
 					RowData r = null;
 					if (internetcheck) {
 						try {
-							//voteList.clear();
+							// voteList.clear();
 							votes.clear();
-							//connect("GET", "");
+							// connect("GET", "");
 							connect("GETCOUNT", "");
 						} catch (ConnectException e) {
 							// TODO Auto-generated catch block
@@ -220,6 +207,18 @@ public class Vote extends ListActivity {
 		mHandler = new Handler();
 		// mHandler.removeCallbacks(update);
 		mHandler.postDelayed(update, 5000);
+	
+	
+
+		builder = new AlertDialog.Builder(this);
+		builder.setTitle("Pick a color");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int item) {
+		        Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
+		    }
+		});
+		AlertDialog alert = builder.create();
+		
 	}
 
 	@Override
@@ -250,11 +249,11 @@ public class Vote extends ListActivity {
 		Log.d("On DESTROY", "TRUE");
 		mHandler.removeCallbacks(update);
 	}
-	
-	protected void onLongListItemClick(View v,int pos,long id) 
-	{
-        registerForContextMenu(v);  
-	     Log.i( "TAG", "onLongListItemClick id=" + id );
+
+	protected void onLongListItemClick(View v, int pos, long id) {
+		builder.show();
+		Toast.makeText(Vote.this, "Toast is working", Toast.LENGTH_SHORT).show();
+		Log.i("TAG", "onLongListItemClick id=" + id);
 
 	}
 
@@ -262,13 +261,12 @@ public class Vote extends ListActivity {
 		TextView title = (TextView) v.findViewById(R.id.title);
 		String vi = (String) ((TextView) title).getText();
 		if (internetcheck) {
-			try 
-			{
-		        //registerForContextMenu(v);  
-				
-			} 
-		
-			 catch (Exception e) {
+			try {
+				// registerForContextMenu(v);
+
+			}
+
+			catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} // Contacts server and gets list of available shows
@@ -281,35 +279,30 @@ public class Vote extends ListActivity {
 					.show();
 		}
 	}
-	
-    @Override  
-    public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) 
-    {  
-    	super.onCreateContextMenu(menu, v, menuInfo);  
-    	menu.setHeaderTitle("Context Menu");  
-    	menu.add(0, v.getId(), 0, "Remove Item");
-    	menu.add(0, v.getId(), 0, "Remove Item");  
-    	menu.add(0, v.getId(), 0, "Clear Votes");  
-    }  
-	
-    @Override  
-    public boolean onContextItemSelected(MenuItem item)
-    {  
-            if(item.getTitle()=="Action 1")
-            {
-            	//function1(item.getItemId());
-            }
-            
-            else if(item.getTitle()=="Action 2")
-            {
-            	//function2(item.getItemId());
-            } 
-            else 
-            {
-            	return false;
-            }  
-            return true;  
-    }  
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.setHeaderTitle("Context Menu");
+		menu.add(0, v.getId(), 0, "Remove Item");
+		menu.add(0, v.getId(), 0, "Remove Item");
+		menu.add(0, v.getId(), 0, "Clear Votes");
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		if (item.getTitle() == "Action 1") {
+			// function1(item.getItemId());
+		}
+
+		else if (item.getTitle() == "Action 2") {
+			// function2(item.getItemId());
+		} else {
+			return false;
+		}
+		return true;
+	}
 
 	private class RowData {
 		protected int mId;
@@ -351,7 +344,7 @@ public class Vote extends ListActivity {
 				holder = new ViewHolder(convertView);
 				convertView.setTag(holder);
 			}
-			holder = (ViewHolder)convertView.getTag();
+			holder = (ViewHolder) convertView.getTag();
 			title = holder.gettitle();
 			title.setText(rowData.mTitle);
 			detail = holder.getdetail();
@@ -498,47 +491,28 @@ public class Vote extends ListActivity {
 
 	// @Override
 	/*
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		return super.onPrepareOptionsMenu((android.view.Menu) menu);
-	}
-
-	// @Override
-	@Override
-	public boolean onCreateOptionsMenu(android.view.Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.voteoptionsmenu, menu);
-		return true;
-	}
-
-	/*
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.help:
-			Intent i = new Intent();
-			i.setClass(Voting.this, Help.class);
-			startActivity(i);
-			break;
-
-		case R.id.stats:
-			Intent i2 = new Intent();
-			i2.putExtra("votes", voteList);
-			i2.putExtra("votesint", votes);
-			i2.setClass(Voting.this, Stats.class);
-			startActivity(i2);
-			break;
-
-		case R.id.settings:
-			Intent i3 = new Intent();
-			i3.setClass(Voting.this, Settings.class);
-			startActivity(i3);
-			break;
-
-		case R.id.quit:
-			finish();
-			break;
-		}
-		return true;
-	}
-	*/
+	 * public boolean onPrepareOptionsMenu(Menu menu) { return
+	 * super.onPrepareOptionsMenu((android.view.Menu) menu); }
+	 * 
+	 * // @Override
+	 * 
+	 * @Override public boolean onCreateOptionsMenu(android.view.Menu menu) {
+	 * MenuInflater inflater = getMenuInflater();
+	 * inflater.inflate(R.menu.voteoptionsmenu, menu); return true; }
+	 * 
+	 * /*
+	 * 
+	 * @Override public boolean onOptionsItemSelected(MenuItem item) { switch
+	 * (item.getItemId()) { case R.id.help: Intent i = new Intent();
+	 * i.setClass(Voting.this, Help.class); startActivity(i); break;
+	 * 
+	 * case R.id.stats: Intent i2 = new Intent(); i2.putExtra("votes",
+	 * voteList); i2.putExtra("votesint", votes); i2.setClass(Voting.this,
+	 * Stats.class); startActivity(i2); break;
+	 * 
+	 * case R.id.settings: Intent i3 = new Intent(); i3.setClass(Voting.this,
+	 * Settings.class); startActivity(i3); break;
+	 * 
+	 * case R.id.quit: finish(); break; } return true; }
+	 */
 }
