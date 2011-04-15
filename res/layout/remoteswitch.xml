@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+android:id="@+id/widget50"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+>
+<GridView xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:id="@+id/gridview"
+    android:paddingTop="10dp"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content"
+    android:numColumns="4"
+    android:verticalSpacing="10dp"
+    android:horizontalSpacing="10dp"
+    android:stretchMode="columnWidth"
+    android:gravity="center_horizontal|center_vertical"
+/>
+
+<LinearLayout 
+	android:layout_width="fill_parent" 
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="30px"
+    android:gravity="center">
+    
+    <Button
+    	android:text="Turn All On"
+    	android:id="@+id/turnallon"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"/>
+    
+    <Button
+    	android:text="Turn All Off"
+    	android:id="@+id/turnalloff"
+    	android:layout_width="wrap_content" 
+    	android:layout_height="wrap_content"/>
+    
+    </LinearLayout>
+
+</LinearLayout>
