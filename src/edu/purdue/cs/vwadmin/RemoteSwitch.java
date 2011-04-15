@@ -1,12 +1,14 @@
 package edu.purdue.cs.vwadmin;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.database.CursorJoiner.Result;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,11 +27,18 @@ public class RemoteSwitch extends Activity  {
 	//private ImageSwitcher imageSwitcher;
 	private TextView ins;
 	private boolean internetcheck;
+	Button turnoff;
+	Button turnon;
 	
-	final boolean[] displayState = new boolean[16]; //true is on and false is off
+	static final int DISPLAY_STANDBY=0;
+	static final int DISPLAY_ON=1;
+	static final int DISPLAY_OFF=2;
+	
+	final int[] displayState = new int[16]; //true is on and false is off
 
 
 	private static final String TAG = null;
+	Activity act = this;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,12 +51,74 @@ public class RemoteSwitch extends Activity  {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		GridView gridview = (GridView) findViewById(R.id.gridview);  
-		gridview.setAdapter(new ButtonAdapter(this)); 
+		final ButtonAdapter buttonadapter = new ButtonAdapter(this);
+		gridview.setAdapter(buttonadapter); 
 	    gridview.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	            Toast.makeText(RemoteSwitch.this, "" + position, Toast.LENGTH_SHORT).show();
 	        }
 	    });
+	    
+	    turnoff = (Button)findViewById(R.id.turnalloff);
+	    turnon = (Button)findViewById(R.id.turnallon);
+	    
+	    turnoff.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				//turnoff all
+				for(int i=0;i<displayState.length;i++){
+					displayState[i]=DISPLAY_OFF;
+				}
+				buttonadapter.notifyDataSetChanged();
+			}
+	    	
+	    });
+	    
+	    turnon.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				//turn on all
+				for(int i=0;i<displayState.length;i++){
+					displayState[i]=DISPLAY_ON;
+				}
+				buttonadapter.notifyDataSetChanged();
+			}
+	    	
+	    });
+	    
+	    final ProgressDialog dialog = ProgressDialog.show(RemoteSwitch.this, "", 
+                "Loading. Please wait...", true);
+	    dialog.show();
+
+	    
+	    new AsyncTask(){
+
+			protected Object doInBackground(Object... arg0) {
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				for(int i=0;i<displayState.length;i++){
+					displayState[i]=(int) Math.rint(Math.random()+1);;
+				}
+								
+				return arg0;
+			}
+			
+		     protected void onPostExecute(Object result) {
+		    	 	Toast.makeText(getBaseContext(), "Display status is now updated", Toast.LENGTH_SHORT).show();
+					buttonadapter.notifyDataSetChanged();
+					dialog.cancel();
+		     }
+
+	    	
+	    }.execute(null);
+	    
 
 	}
 	
@@ -96,6 +167,9 @@ public class RemoteSwitch extends Activity  {
 	     
 	    // Gets the context so it can be used later  
 	    public ButtonAdapter(Context c) {  
+	    	for(int i=0;i<displayState.length;i++){
+				displayState[i]=DISPLAY_STANDBY;
+			}
 	     mContext = c;  
 	    }  
 	     
@@ -131,8 +205,20 @@ public class RemoteSwitch extends Activity  {
 	     //exus  
 	     btn.setText(position+1 + "");  
 	     // filenames is an array of strings  
-	     btn.setTextColor(Color.WHITE);  
-	     btn.setBackgroundColor(Color.argb(100, 100, 100, 255));
+	     btn.setTextColor(Color.WHITE);
+	     
+	     switch(displayState[position]){
+	     case 0:
+	    	 btn.setBackgroundColor(Color.argb(100, 100, 100, 255));
+	    	 break;
+	     case 1:
+	    	 btn.setBackgroundColor(Color.argb(100, 124, 252, 0));
+	    	 break;
+	     case 2:
+	    	 btn.setBackgroundColor(Color.argb(100, 255, 100, 100));
+	    	 break;
+	     }
+	     
 	     //btn.setBackgroundResource(R.drawable.button);  
 	     btn.setId(position);  
 	     btn.setOnClickListener(new OnClickListener(){
@@ -141,28 +227,21 @@ public class RemoteSwitch extends Activity  {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 	            //Toast.makeText(v.getContext(), "" + ((Button)v).getText(), Toast.LENGTH_SHORT).show();
-				if(!displayState[position])
-				{
-					displayState[position]=!displayState[position];
-	            //Toast.makeText(v.getContext(), "" + ((Button)v).getText(), Toast.LENGTH_SHORT).show();
-	            v.setBackgroundColor(Color.argb(100, 124, 252, 0));
-	            
-	            Toast.makeText(RemoteSwitch.this, "Now Turning Display Off...", Toast.LENGTH_SHORT).show();
-	            new Thread(new Runnable(){
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-
-					}
-	            }).start();
-	            
-				}
-				else
-				{
-					displayState[position]=!displayState[position];
-		            Toast.makeText(RemoteSwitch.this, "Now Turning Display On...", Toast.LENGTH_SHORT).show();
-		            v.setBackgroundColor(Color.argb(100, 100, 100, 255));
-				}
+			     switch(displayState[position]){
+			     case 0:
+			    	 //v.setBackgroundColor(Color.argb(100, 100, 100, 255));
+			         Toast.makeText(v.getContext(), "Please wait till the screen is determined as on or off", Toast.LENGTH_SHORT).show();
+			    	 break;
+			     case DISPLAY_ON:
+			    	 v.setBackgroundColor(Color.argb(100, 255, 100, 100));
+			    	 displayState[position]=DISPLAY_OFF;
+			    	 break;
+			     case DISPLAY_OFF:
+			    	 v.setBackgroundColor(Color.argb(100, 124, 252, 0));		    
+			    	 displayState[position]=DISPLAY_ON;
+			    	 break;
+			     }
+			     
 			}
 				
 	    	 
