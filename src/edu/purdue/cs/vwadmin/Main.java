@@ -61,6 +61,14 @@ public class Main extends TabActivity {
 				.setIndicator("Triggers", res.getDrawable(R.drawable.icon))
 				.setContent(intent);
 		tabHost.addTab(spec);
+		
+
+		intent = new Intent().setClass(this, Vote.class);
+		spec = tabHost.newTabSpec("Vote")
+				.setIndicator("Vote", res.getDrawable(R.drawable.icon))
+				.setContent(intent);
+		tabHost.addTab(spec);
+
 //
 //		// Do the same for the other tabs
 //		intent = new Intent().setClass(this, Audio.class);
