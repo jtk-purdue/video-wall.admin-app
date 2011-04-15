@@ -115,7 +115,7 @@ public class RemoteSwitch extends Activity  {
 					buttonadapter.notifyDataSetChanged();
 					dialog.cancel();
 		     }
-
+//sdsd
 	    	
 	    }.execute(null);
 	    
