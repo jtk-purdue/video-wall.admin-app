@@ -141,8 +141,9 @@ public class RemoteSwitch extends Activity  {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 	            //Toast.makeText(v.getContext(), "" + ((Button)v).getText(), Toast.LENGTH_SHORT).show();
-				if(displayState[position])
+				if(!displayState[position])
 				{
+					displayState[position]=!displayState[position];
 	            //Toast.makeText(v.getContext(), "" + ((Button)v).getText(), Toast.LENGTH_SHORT).show();
 	            v.setBackgroundColor(Color.argb(100, 124, 252, 0));
 	            
@@ -158,6 +159,7 @@ public class RemoteSwitch extends Activity  {
 				}
 				else
 				{
+					displayState[position]=!displayState[position];
 		            Toast.makeText(RemoteSwitch.this, "Now Turning Display On...", Toast.LENGTH_SHORT).show();
 		            v.setBackgroundColor(Color.argb(100, 100, 100, 255));
 				}
